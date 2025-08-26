@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft:ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/bookworm64"
+  config.vm.box_version = "12.20250126.1"
+
+  Server = "nledergeS"
+  config.vm.define Server do |node|
+    node.vm.hostname = Server
+    node.vm.network "private_network", ip: "192.168.56.110"
+
+    node.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.cpus = 1
+      vb.name = Server
+    end
+
+    node.vm.provision "shell", path: "scripts/provisioner.sh"
+  end
+
+  ServerWorker = "nledergeSW"
+  config.vm.define ServerWorker do |node|
+    node.vm.hostname = ServerWorker
+    node.vm.network "private_network", ip: "192.168.56.111"
+    
+    node.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.cpus = 1
+      vb.name = ServerWorker
+    end
+
+    node.vm.provision "shell", path: "scripts/provisioner_worker.sh"
+  end
+end
