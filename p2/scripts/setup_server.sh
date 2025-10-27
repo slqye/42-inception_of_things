@@ -52,14 +52,14 @@ cd hello-kubernetes/deploy/helm
 # Install NGINX Ingress Controller
 echo "=== Installing NGINX Ingress Controller ==="
 helm install nginx-ingress ingress-nginx/ingress-nginx \
-	--create-namespace --namespace ingress-nginx \
+	--create-namespace --namespace hello-kubernetes \
 	--set controller.replicaCount=1 \
 	--set controller.service.type=NodePort \
 	--set controller.service.nodePorts.http=30080
 
 # Wait for ingress controller to be ready
 echo "=== Waiting for Ingress Controller to be ready ==="
-kubectl wait --namespace ingress-nginx \
+kubectl wait --namespace hello-kubernetes \
 	--for=condition=ready pod \
 	--selector=app.kubernetes.io/component=controller \
 	--timeout=120s
@@ -74,7 +74,7 @@ echo "=== Deploying hello-kubernetes applications ==="
 
 # Deploy app1
 helm install app1 ./hello-kubernetes \
-	--create-namespace --namespace hello-kubernetes \
+	--namespace hello-kubernetes \
 	--set replicaCount=1 \
 	--set message="Hello from app1" \
 	--set service.type=ClusterIP
