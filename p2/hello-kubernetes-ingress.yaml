@@ -4,7 +4,7 @@ metadata:
   name: hello-kubernetes-ingress
   namespace: hello-kubernetes
   annotations:
-    kubernetes.io/ingress.class: nginx
+    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   rules:
   - host: app1.com
@@ -14,7 +14,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: app1
+            name: hello-kubernetes-app1
             port:
               number: 80
   - host: app2.com
@@ -24,7 +24,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: app2
+            name: hello-kubernetes-app2
             port:
               number: 80
   - host: app3.com
@@ -34,6 +34,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: app3
+            name: hello-kubernetes-app3
             port:
               number: 80
