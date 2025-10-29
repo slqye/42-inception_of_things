@@ -1,6 +1,6 @@
 #!/bin/bash
 export DEBIAN_FRONTEND=noninteractive
-export MY_USERNAME=loupy
+export MY_USERNAME=iot
 set -e
 
 apt-get update -y
