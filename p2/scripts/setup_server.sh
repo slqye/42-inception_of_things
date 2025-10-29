@@ -16,15 +16,6 @@ helm version
 
 echo "=== Helm installed successfully ==="
 
-# Wait for Traefik to be ready
-echo "=== Waiting for Traefik to be ready ==="
-kubectl wait --namespace kube-system \
-	--for=condition=ready pod \
-	--selector=app.kubernetes.io/name=traefik \
-	--timeout=120s
-
-echo "=== Traefik is ready ==="
-
 # Ensure kubeconfig is properly set
 echo "=== Configuring kubeconfig ==="
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
@@ -66,6 +57,19 @@ helm install app3 ./hello-kubernetes \
 	--set deployment.replicaCount=1 \
 	--set message="Hello from app3" \
 	--set service.type=ClusterIP
+
+# Wait for Traefik to be ready
+echo "=== Waiting for Traefik to be ready ==="
+until kubectl get pods --namespace kube-system --selector=app.kubernetes.io/name=traefik 2>/dev/null | grep -q traefik; do
+	echo "Waiting for Traefik pods to be created..."
+	sleep 5
+done
+kubectl wait --namespace kube-system \
+	--for=condition=ready pod \
+	--selector=app.kubernetes.io/name=traefik \
+	--timeout=120s
+
+echo "=== Traefik is ready ==="
 
 # Apply the Ingress resource
 echo "=== Applying Ingress resource ==="
