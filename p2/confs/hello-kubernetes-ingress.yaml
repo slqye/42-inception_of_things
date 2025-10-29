@@ -27,7 +27,7 @@ spec:
             name: hello-kubernetes-app2
             port:
               number: 80
-  - host: app3.com
+  - host:
     http:
       paths:
       - path: /
