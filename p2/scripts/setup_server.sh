@@ -69,7 +69,7 @@ helm install app3 ./hello-kubernetes \
 
 # Apply the Ingress resource
 echo "=== Applying Ingress resource ==="
-kubectl apply -f /vagrant/hello-kubernetes-ingress.yaml
+kubectl apply -f /vagrant/confs/hello-kubernetes-ingress.yaml
 
 echo "=== Deployment completed successfully ==="
 echo "=== Testing instructions ==="
