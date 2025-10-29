@@ -2,7 +2,7 @@
 set -e
 
 k3d cluster delete -a
-k3d cluster create cluster-p3
+k3d cluster create cluster-p3 -p "8443:443@loadbalancer"
 
 # Argo cd
 kubectl create namespace argocd
