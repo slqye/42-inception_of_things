@@ -23,3 +23,11 @@ kubectl wait --namespace kube-system \
 	--for=condition=ready pod \
 	--selector=app.kubernetes.io/name=traefik \
 	--timeout=120s
+
+# Argo cd CLI
+INITIAL_PASSWORD=$(argocd admin initial-password -n argocd | head -n 1)
+argocd login argocd.sh --username admin --password $INITIAL_PASSWORD --grpc-web --insecure
+NEW_PASSWORD=$(openssl rand -hex 16)
+argocd account update-password --current-password $INITIAL_PASSWORD --new-password $NEW_PASSWORD --grpc-web --insecure
+argocd logout argocd.sh
+echo "Admin password updated to: $NEW_PASSWORD"

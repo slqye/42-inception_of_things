@@ -46,3 +46,10 @@ echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
 install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 kubectl version --client
 
+echo "=== Installing argocd-cli ==="
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
+
+echo "=== Updating /etc/hosts ==="
+echo "127.0.0.1 argocd.sh" >> /etc/hosts
