@@ -53,3 +53,4 @@ rm argocd-linux-amd64
 
 echo "=== Updating /etc/hosts ==="
 echo "127.0.0.1 argocd.sh" >> /etc/hosts
+echo "127.0.0.1 playground.sh" >> /etc/hosts
