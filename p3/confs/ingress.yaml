@@ -6,8 +6,12 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
+  tls:
+  - hosts:
+    - argocd.sh
+    secretName: argocd-server-tls
   rules:
-  - host: argocd.iot
+  - host: argocd.sh
     http:
       paths:
       - path: /
@@ -16,4 +20,4 @@ spec:
           service:
             name: argocd-server
             port:
-              number: 443
+              number: 80
