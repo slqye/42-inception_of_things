@@ -1,10 +1,6 @@
 #!/bin/bash
 NAME=$(basename $0)
-VERBOSE=0
-
-if [ "$1" == "--verbose" ]; then
-    VERBOSE=1
-fi
+VERBOSE=${VERBOSE:-0}
 
 # Functions
 run() {

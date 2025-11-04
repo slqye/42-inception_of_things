@@ -1,5 +1,5 @@
 #!/bin/bash
-VERBOSE=0
+VERBOSE=${VERBOSE:-0}
 
 # Functions
 run() {
