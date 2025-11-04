@@ -1,18 +1,18 @@
-# values-minikube.yaml
-# This example intended as baseline to use Minikube for the deployment of GitLab
+# values-k3d.yaml
+# This configuration is adapted for k3d deployment of GitLab
 # - Minimized CPU/Memory load, can fit into 3 CPU, 6 GB of RAM (barely)
-# - Services that are not compatible with how Minikube runs are disabled
+# - Services that are not compatible with k3d are disabled
 # - Some services entirely removed, or scaled down to 1 replica.
-# - Configured to use 192.168.99.100, and nip.io for the domain
+# - Configured to use gitlab.sh domain with HTTP
 
 # Minimal settings
 global:
   ingress:
     configureCertmanager: false
-    class: "nginx"
+    class: "traefik"
   hosts:
-    domain: 192.168.99.100.nip.io
-    externalIP: 192.168.99.100
+    domain: gitlab.sh
+    https: false
   # Disable Rails bootsnap cache (temporary)
   rails:
     bootsnap:
@@ -31,8 +31,13 @@ prometheus:
   install: false
 gitlab-runner:
   install: false
-# Reduce replica counts, reducing CPU & memory requirements
+# Disable Grafana
+grafana:
+  enabled: false
+# Reduce replica counts and disable optional services
 gitlab:
+  gitlab-exporter:
+    enabled: false
   webservice:
     minReplicas: 1
     maxReplicas: 1
@@ -47,7 +52,23 @@ gitlab:
     service:
       type: NodePort
       nodePort: 32022
+  kas:
+    minReplicas: 1
+    maxReplicas: 1
+  toolbox:
+    replicas: 1
 registry:
   hpa:
     minReplicas: 1
     maxReplicas: 1
+# Reduce PostgreSQL resources
+postgresql:
+  metrics:
+    enabled: false
+# Reduce Redis resources
+redis:
+  metrics:
+    enabled: false
+# Reduce MinIO resources
+minio:
+  replicas: 1

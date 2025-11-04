@@ -1,4 +1,5 @@
 #!/bin/bash
+MY_USERNAME=iot
 NAME=$(basename $0)
 VERBOSE=${VERBOSE:-0}
 

@@ -27,7 +27,7 @@ run helm repo update
 echo "Deploying GitLab (minimal resources)"
 run helm install gitlab gitlab/gitlab \
   -n gitlab \
-  -f confs/gitlab/values-minikube-minimum.yaml \
+  -f confs/gitlab/minimal-values.yaml \
   --timeout 600s
 
 echo "Waiting for GitLab to be ready"
