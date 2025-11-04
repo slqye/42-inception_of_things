@@ -56,7 +56,7 @@ run argocd account update-password --current-password $INITIAL_PASSWORD --new-pa
 echo -e "${DEBUG}$NAME${RESET}: new password: $NEW_PASSWORD"
 
 echo -e "${DEBUG}$NAME${RESET}: Setup of argocd app"
-kubectl apply -f confs/argocd/application.yaml
-argocd logout argocd.sh
+run kubectl apply -f confs/argocd/application.yaml
+run argocd logout argocd.sh
 
 echo -e "${SUCCESS}$NAME${RESET}: Done"
