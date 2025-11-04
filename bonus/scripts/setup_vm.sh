@@ -3,59 +3,84 @@ export DEBIAN_FRONTEND=noninteractive
 export MY_USERNAME=iot
 set -e
 
-apt-get update -y
-apt-get upgrade -y
-apt-get install -y curl wget git vim ca-certificates gnupg lsb-release sudo
+# Utils
+NAME=$(basename $0)
+VERBOSE=0
 
-echo "=== Adding $MY_USERNAME to sudoers ==="
+DEBUG="\033[0;34m"
+SUCCESS="\033[0;32m"
+WARNING="\033[0;33m"
+ERROR="\033[0;31m"
+RESET="\033[0m"
+
+if [ "$1" == "--verbose" ]; then
+    VERBOSE=1
+fi
+
+# Functions
+run() {
+    if [ "$VERBOSE" -eq 1 ]; then
+        "$@"
+    else
+        "$@" >/dev/null 2>&1
+    fi
+}
+
+# Main
+echo -e "${DEBUG}$NAME${RESET}: Updating system"
+run apt-get update -y
+run apt-get upgrade -y
+run apt-get install -y curl wget git vim ca-certificates gnupg lsb-release sudo
+
+echo -e "${DEBUG}$NAME${RESET}: Adding $MY_USERNAME to sudoers"
 echo "$MY_USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-echo "=== Installing Docker ==="
-echo "  Adding Docker's official GPG key..."
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-chmod a+r /etc/apt/keyrings/docker.asc
+echo -e "${DEBUG}$NAME${RESET}: Installing Docker"
+echo -e "${DEBUG}$NAME${RESET}: Adding Docker's official GPG key"
+run install -m 0755 -d /etc/apt/keyrings
+run curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+run chmod a+r /etc/apt/keyrings/docker.asc
 
-echo "  = Adding the docker repository to Apt sources ="
+echo -e "${DEBUG}$NAME${RESET}: Adding the docker repository to Apt sources"
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
+run apt-get update -y
 
-apt-get update -y
+echo -e "${DEBUG}$NAME${RESET}: Installing Docker packages"
+run apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-echo "  = Installing Docker packages ="
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+echo -e "${DEBUG}$NAME${RESET}: Adding $MY_USERNAME to the docker group"
+run usermod -aG docker $MY_USERNAME
 
-echo "  = Adding $MY_USERNAME to the docker group ="
-usermod -aG docker $MY_USERNAME
+echo -e "${DEBUG}$NAME${RESET}: Enabling and starting Docker"
+run systemctl enable docker
+run systemctl start docker
+run docker --version
 
-echo "  = Enabling and starting Docker ="
-systemctl enable docker
-systemctl start docker
-docker --version
+echo -e "${DEBUG}$NAME${RESET}: Installing k3d"
+run wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+run k3d version
 
-echo "=== Installing k3d ==="
-wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-k3d version
+echo -e "${DEBUG}$NAME${RESET}: Installing kubectl"
+run curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+run curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+run sh -c 'echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check'
+run install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+run kubectl version --client
 
-echo "=== Installing kubectl ==="
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-kubectl version --client
+echo -e "${DEBUG}$NAME${RESET}: Installing helm"
+run curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+run helm version
 
-echo "=== Installing helm ==="
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-helm version
-echo "=== Helm installed ==="
-
-echo "=== Installing argocd-cli ==="
-curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+echo -e "${DEBUG}$NAME${RESET}: Installing argocd-cli"
+run curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+run sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 rm argocd-linux-amd64
 
-echo "=== Updating /etc/hosts ==="
+echo -e "${DEBUG}$NAME${RESET}: Updating /etc/hosts"
 echo "127.0.0.1 argocd.sh" >> /etc/hosts
 echo "127.0.0.1 playground.sh" >> /etc/hosts
+
+echo -e "${DEBUG}$NAME${RESET}: Done"
