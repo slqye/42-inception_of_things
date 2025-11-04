@@ -22,8 +22,10 @@ run() {
 }
 
 # Main
-echo -e "${DEBUG}$NAME${RESET}: Reseting potential preivous cluster"
+echo -e "${DEBUG}$NAME${RESET}: Removing previous cluster"
 run k3d cluster delete -a
+
+echo -e "${DEBUG}$NAME${RESET}: Creating new cluster"
 run k3d cluster create cluster-p3 -p "443:443@loadbalancer" -p "80:80@loadbalancer"
 run kubectl create namespace argocd
 run kubectl create namespace dev
