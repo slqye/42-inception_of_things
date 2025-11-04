@@ -1,9 +1,4 @@
 #!/bin/bash
-export DEBIAN_FRONTEND=noninteractive
-export MY_USERNAME=iot
-set -e
-
-# Utils
 NAME=$(basename $0)
 VERBOSE=0
 
@@ -83,4 +78,4 @@ echo -e "${DEBUG}$NAME${RESET}: Updating /etc/hosts"
 echo "127.0.0.1 argocd.sh" >> /etc/hosts
 echo "127.0.0.1 playground.sh" >> /etc/hosts
 
-echo -e "${DEBUG}$NAME${RESET}: Done"
+echo -e "${SUCCESS}$NAME${RESET}: Done"
