@@ -4,8 +4,12 @@ metadata:
   name: gitlab-ingress
   namespace: gitlab
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
+  tls:
+  - hosts:
+    - gitlab.sh
+    secretName: gitlab-wildcard-tls
   rules:
   - host: gitlab.sh
     http:
@@ -16,4 +20,4 @@ spec:
           service:
             name: gitlab-webservice-default
             port:
-              number: 8080
+              number: 8181

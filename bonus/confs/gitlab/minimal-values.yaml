@@ -1,9 +1,5 @@
-# values-k3d.yaml
+# minimal-values.yaml
 # This configuration is adapted for k3d deployment of GitLab
-# - Minimized CPU/Memory load, can fit into 3 CPU, 6 GB of RAM (barely)
-# - Services that are not compatible with k3d are disabled
-# - Some services entirely removed, or scaled down to 1 replica.
-# - Configured to use gitlab.sh domain with HTTP
 
 # Minimal settings
 global:
@@ -12,7 +8,7 @@ global:
     class: "traefik"
   hosts:
     domain: gitlab.sh
-    https: false
+    https: true
   # Disable Rails bootsnap cache (temporary)
   rails:
     bootsnap:
