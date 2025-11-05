@@ -11,6 +11,7 @@ VM_COLOR=$'\e[1;35m'
 CLUSTER_COLOR=$'\e[1;36m'
 ARGOCD_COLOR=$'\e[38;5;208m'
 GITLAB_COLOR=$'\e[38;5;202m'
+PASSWORD=$'\e[38;5;81m' 
 RESET=$'\e[0m'
 
 # Main
