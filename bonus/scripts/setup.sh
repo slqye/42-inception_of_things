@@ -14,6 +14,9 @@ GITLAB_COLOR=$'\e[38;5;202m'
 RESET=$'\e[0m'
 
 # Main
+if [ "$1" = "--vm" ] || [ "$2" = "--vm" ]; then
+	sudo bash -c './scripts/vm.sh "$@" 2>&1 | sed "s/^/${VM_COLOR}vm${RESET}: /"'
+fi
 ./scripts/cluster.sh $1 2>&1 | sed "s/^/${CLUSTER_COLOR}cluster${RESET}: /"
 ./scripts/gitlab.sh $1 2>&1 | sed "s/^/${GITLAB_COLOR}gitlab${RESET}: /"
 ./scripts/argocd.sh $1 2>&1 | sed "s/^/${ARGOCD_COLOR}argocd${RESET}: /"
