@@ -22,3 +22,4 @@ fi
 ./scripts/cluster.sh 2>&1 | sed "s/^/${CLUSTER_COLOR}cluster${RESET}: /"
 ./scripts/gitlab.sh 2>&1 | sed "s/^/${GITLAB_COLOR}gitlab${RESET}: /"
 ./scripts/argocd.sh 2>&1 | sed "s/^/${ARGOCD_COLOR}argocd${RESET}: /"
+./scripts/gitlab_user.sh 2>&1 | sed "s/^/${GITLAB_USER_COLOR}gitlab_user${RESET}: /"

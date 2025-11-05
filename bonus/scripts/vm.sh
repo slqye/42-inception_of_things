@@ -41,20 +41,28 @@ wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 k3d version
 
 echo "Installing kubectl"
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-sh -c 'echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check'
-install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+curl -o /tmp/kubectl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -o /tmp/kubectl.sha256 -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+sh -c 'echo "$(cat /tmp/kubectl.sha256)  /tmp/kubectl" | sha256sum --check'
+install -o root -g root -m 0755 /tmp/kubectl /usr/local/bin/kubectl
 kubectl version --client
+rm /tmp/kubectl
+rm /tmp/kubectl.sha256
 
 echo "Installing helm"
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 helm version
 
 echo "Installing argocd-cli"
-curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-rm argocd-linux-amd64
+curl -sSL -o /tmp/argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+sudo install -m 555 /tmp/argocd-linux-amd64 /usr/local/bin/argocd
+rm /tmp/argocd-linux-amd64
+
+echo "Installing glab cli"
+wget -O /tmp/glab_1.76.2_linux_amd64.deb https://gitlab.com/gitlab-org/cli/-/releases/v1.76.2/downloads/glab_1.76.2_linux_amd64.deb
+apt-get install -y /tmp/glab_1.76.2_linux_amd64.deb
+rm /tmp/glab_1.76.2_linux_amd64.deb
+glab version
 
 echo "Updating /etc/hosts"
 echo "127.0.0.1 argocd.sh" >> /etc/hosts
