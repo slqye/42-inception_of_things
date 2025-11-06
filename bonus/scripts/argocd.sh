@@ -12,9 +12,3 @@ argocd login argocd.sh --username admin --password $INITIAL_PASSWORD --grpc-web 
 NEW_PASSWORD=$(openssl rand -hex 16)
 argocd account update-password --current-password $INITIAL_PASSWORD --new-password $NEW_PASSWORD --grpc-web --insecure
 echo "new password is ${PASSWORD}$NEW_PASSWORD${RESET}"
-
-echo "Setup of argocd app"
-kubectl apply -f confs/argocd/application.yaml
-argocd logout argocd.sh
-
-echo "Done"

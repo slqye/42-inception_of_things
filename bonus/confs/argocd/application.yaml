@@ -9,7 +9,6 @@ spec:
     repoURL: <repo_url_placeholder>
     targetRevision: main
     path: dev
-    insecure: true
   destination:
     server: https://kubernetes.default.svc
     namespace: dev

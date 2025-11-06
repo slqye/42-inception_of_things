@@ -11,7 +11,8 @@ VM_COLOR=$'\e[1;35m'
 CLUSTER_COLOR=$'\e[1;36m'
 ARGOCD_COLOR=$'\e[38;5;208m'
 GITLAB_COLOR=$'\e[38;5;202m'
-GITLAB_USER_COLOR=$'\e[38;5;202m'
+GITLAB_USER_COLOR=$'\e[38;5;206m'
+COREDNS_COLOR=$'\e[38;5;214m'
 PASSWORD=$'\e[38;5;81m' 
 RESET=$'\e[0m'
 
@@ -22,5 +23,6 @@ if [ "$1" = "--only-vm" ]; then
 fi
 ./scripts/cluster.sh 2>&1 | sed "s/^/${CLUSTER_COLOR}cluster${RESET}: /"
 ./scripts/gitlab.sh 2>&1 | sed "s/^/${GITLAB_COLOR}gitlab${RESET}: /"
+./scripts/update_coredns.sh 2>&1 | sed "s/^/${COREDNS_COLOR}coredns${RESET}: /"
 ./scripts/argocd.sh 2>&1 | sed "s/^/${ARGOCD_COLOR}argocd${RESET}: /"
 ./scripts/gitlab_user.sh 2>&1 | sed "s/^/${GITLAB_USER_COLOR}gitlab_user${RESET}: /"

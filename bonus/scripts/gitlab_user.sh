@@ -99,14 +99,18 @@ git push gitlab main
 
 cd ..
 
-echo "Changing argocd-cli admin password"
-INITIAL_PASSWORD=$(argocd admin initial-password -n argocd | head -n 1)
-argocd login argocd.sh --username admin --password $INITIAL_PASSWORD --grpc-web --insecure
-NEW_PASSWORD=$(openssl rand -hex 16)
-argocd account update-password --current-password $INITIAL_PASSWORD --new-password $NEW_PASSWORD --grpc-web --insecure
-echo "new password is ${PASSWORD}$NEW_PASSWORD${RESET}"
+echo "Configuring application.yaml"
+GITLAB_REPO_URL="https://gitlab.sh/${GITLAB_USER_USERNAME}/${GITLAB_PROJECT_NAME}"
+sed -i "s|<repo_url_placeholder>|${GITLAB_REPO_URL}|g" confs/argocd/application.yaml
 
-echo "Setup of argocd app"
-sed -i "s|<repo_url_placeholder>|https://gitlab.sh/${GITLAB_USER_USERNAME}/${GITLAB_PROJECT_NAME}.git|g" confs/argocd/application.yaml
+echo "Adding repository to argocd"
+argocd repo add ${GITLAB_REPO_URL}.git --insecure-skip-server-verification
+
+echo "Applying application.yaml"
 kubectl apply -f confs/argocd/application.yaml
+sed -i "s|${GITLAB_REPO_URL}|<repo_url_placeholder>|g" confs/argocd/application.yaml
+
+echo "Logging out of argocd"
 argocd logout argocd.sh
+
+echo "Done"
