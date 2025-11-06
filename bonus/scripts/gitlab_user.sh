@@ -78,6 +78,7 @@ glab auth status --hostname gitlab.sh
 echo "Creation of a new repository for the user"
 glab repo create ${GITLAB_PROJECT_NAME} --public
 
+rm -rf .ssh repo
 mkdir -p .ssh
 chmod 700 .ssh
 ssh-keygen -t ed25519 -f .ssh/id_ed25519 -N ""
@@ -85,12 +86,12 @@ chmod 600 .ssh/id_ed25519
 glab ssh-key add .ssh/id_ed25519.pub --title "iot_ssh_key"
 glab ssh-key list
 
-ssh-keyscan -p 32022 gitlab.sh >> .ssh/known_hosts
+ssh-keyscan gitlab.sh >> .ssh/known_hosts
 
 git clone https://github.com/7f7b6ba1d8/xxxxiotnledergexxxx.git repo
 cd repo
 
 export GIT_SSH_COMMAND="ssh -i $PWD/../.ssh/id_ed25519 -o UserKnownHostsFile=$PWD/../.ssh/known_hosts -o StrictHostKeyChecking=no"
 echo "GIT_SSH_COMMAND: $GIT_SSH_COMMAND"
-git remote add gitlab git@gitlab.sh:${GITLAB_USER_USERNAME}/${GITLAB_PROJECT_NAME}.git
+git remote add gitlab ssh://git@gitlab.sh:32022/${GITLAB_USER_USERNAME}/${GITLAB_PROJECT_NAME}.git
 git push gitlab main -v

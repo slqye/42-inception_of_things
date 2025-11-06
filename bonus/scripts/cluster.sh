@@ -7,7 +7,7 @@ echo "Removing previous cluster"
 k3d cluster delete -a
 
 echo "Creating new cluster"
-k3d cluster create cluster-p3 -p "443:443@loadbalancer" -p "80:80@loadbalancer"
+k3d cluster create cluster-p3 -p "80:80@loadbalancer" -p "443:443@loadbalancer" -p "32022:32022@loadbalancer"
 kubectl create namespace argocd
 kubectl create namespace dev
 
