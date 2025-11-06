@@ -97,6 +97,8 @@ echo "Pushing to GitLab repository"
 git remote add gitlab ssh://git@gitlab.sh:32022/${GITLAB_USER_USERNAME}/${GITLAB_PROJECT_NAME}.git
 git push gitlab main
 
+cd ..
+
 echo "Changing argocd-cli admin password"
 INITIAL_PASSWORD=$(argocd admin initial-password -n argocd | head -n 1)
 argocd login argocd.sh --username admin --password $INITIAL_PASSWORD --grpc-web --insecure
