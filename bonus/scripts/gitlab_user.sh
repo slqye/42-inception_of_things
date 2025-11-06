@@ -1,30 +1,10 @@
 #!/bin/bash
 set -e
-GITLAB_USER_USERNAME='testuser1'
-GITLAB_USER_EMAIL='testuser1@gmail.com'
-GITLAB_USER_NAME='test user'
-GITLAB_USER_PASSWORD='tasdfasbd713440+sdansd'
-
-# Validate required environment variables
-if [ -z "$GITLAB_USER_USERNAME" ]; then
-	echo "Error: GITLAB_USER_USERNAME is not set"
-	exit 1
-fi
-
-if [ -z "$GITLAB_USER_EMAIL" ]; then
-	echo "Error: GITLAB_USER_EMAIL is not set"
-	exit 1
-fi
-
-if [ -z "$GITLAB_USER_NAME" ]; then
-	echo "Error: GITLAB_USER_NAME is not set"
-	exit 1
-fi
-
-if [ -z "$GITLAB_USER_PASSWORD" ]; then
-	echo "Error: GITLAB_USER_PASSWORD is not set"
-	exit 1
-fi
+GITLAB_USER_USERNAME=$(openssl rand -hex 10)
+GITLAB_USER_EMAIL="${GITLAB_USER_USERNAME}@gmail.com"
+GITLAB_USER_NAME="test user ${GITLAB_USER_USERNAME}"
+GITLAB_USER_PASSWORD=$(openssl rand -hex 16)
+GITLAB_PROJECT_NAME="iot_uwywijas_$(openssl rand -hex 6)"
 
 # Colors
 USERNAME=$'\e[38;5;82m'
@@ -44,7 +24,7 @@ RUBY="u = Users::CreateService.new(nil,
   organization_id: Organizations::Organization.first.id,
   skip_confirmation: true
 ).execute
-puts \"=== User Creation Result ===\"
+puts \"User Creation Result\"
 puts \"Status: #{u[:status]}\"
 if u[:user]
 	puts \"User ID: #{u[:user].id}\"
@@ -62,7 +42,22 @@ end
 if u[:user] && u[:user].errors.any?
 	puts \"Errors: #{u[:user].errors.full_messages.join(', ')}\"
 end
-exit(u[:status] == :success ? 0 : 1)"
+if u[:status] == :success
+	puts \"User created successfully\"
+else
+	puts \"User creation failed\"
+	exit 1
+end
+
+PersonalAccessToken.where(user: u[:user], name: 'glab-cli-token').destroy_all
+token = PersonalAccessToken.create!(
+    user: u[:user],
+    name: 'glab-cli-token',
+    scopes: ['api', 'read_user', 'write_repository'],
+    expires_at: 30.days.from_now
+)
+puts token.token
+"
 
 kubectl exec -n gitlab -c toolbox "$POD" -- gitlab-rails runner "$RUBY"
 if [ $? -ne 0 ]; then
@@ -99,3 +94,25 @@ if [ $? -ne 0 ]; then
 fi
 ACCESS_TOKEN=$(echo "$TEMP_OUTPUT" | tail -n 1 | tr -d '\r\n')
 echo "token: ${TOKEN}${ACCESS_TOKEN}${RESET}"
+
+echo "Gitlab config to skip TLS verification for gitlab.sh"
+glab config set skip_tls_verify true --host gitlab.sh
+
+export GITLAB_HOST=gitlab.sh
+echo "Gitlab user login through glab with token"
+glab auth login --token $ACCESS_TOKEN
+
+echo "Creation of a new repository for the user"
+glab repo create ${GITLAB_PROJECT_NAME} --public
+
+mkdir -p ~/.ssh
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
+
+glab ssh-key add ~/.ssh/id_ed25519.pub --title "iot_ssh_key"
+
+git clone https://github.com/7f7b6ba1d8/xxxxiotnledergexxxx.git repo
+cd repo
+
+export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519"
+git remote add gitlab git@gitlab.sh:${GITLAB_USER_USERNAME}/${GITLAB_PROJECT_NAME}.git
+git push gitlab main
