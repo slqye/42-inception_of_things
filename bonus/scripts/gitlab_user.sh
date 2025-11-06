@@ -81,17 +81,30 @@ glab repo create ${GITLAB_PROJECT_NAME} --public
 rm -rf .ssh repo
 mkdir -p .ssh
 chmod 700 .ssh
-ssh-keygen -t ed25519 -f .ssh/id_ed25519 -N ""
+ssh-keygen -q -t ed25519 -f .ssh/id_ed25519 -N ""
 chmod 600 .ssh/id_ed25519
 glab ssh-key add .ssh/id_ed25519.pub --title "iot_ssh_key"
 glab ssh-key list
 
 ssh-keyscan gitlab.sh >> .ssh/known_hosts
 
+echo "Cloning repository from original repository"
 git clone https://github.com/7f7b6ba1d8/xxxxiotnledergexxxx.git repo
 cd repo
 
 export GIT_SSH_COMMAND="ssh -i $PWD/../.ssh/id_ed25519 -o UserKnownHostsFile=$PWD/../.ssh/known_hosts -o StrictHostKeyChecking=no"
-echo "GIT_SSH_COMMAND: $GIT_SSH_COMMAND"
+echo "Pushing to GitLab repository"
 git remote add gitlab ssh://git@gitlab.sh:32022/${GITLAB_USER_USERNAME}/${GITLAB_PROJECT_NAME}.git
-git push gitlab main -v
+git push gitlab main
+
+echo "Changing argocd-cli admin password"
+INITIAL_PASSWORD=$(argocd admin initial-password -n argocd | head -n 1)
+argocd login argocd.sh --username admin --password $INITIAL_PASSWORD --grpc-web --insecure
+NEW_PASSWORD=$(openssl rand -hex 16)
+argocd account update-password --current-password $INITIAL_PASSWORD --new-password $NEW_PASSWORD --grpc-web --insecure
+echo "new password is ${PASSWORD}$NEW_PASSWORD${RESET}"
+
+echo "Setup of argocd app"
+sed -i "s|<repo_url_placeholder>|https://gitlab.sh/${GITLAB_USER_USERNAME}/${GITLAB_PROJECT_NAME}.git|g" confs/argocd/application.yaml
+kubectl apply -f confs/argocd/application.yaml
+argocd logout argocd.sh

@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/7f7b6ba1d8/xxxxiotnledergexxxx
+    repoURL: <repo_url_placeholder>
     targetRevision: main
     path: dev
   destination:
